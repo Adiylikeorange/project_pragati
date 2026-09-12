@@ -7,9 +7,14 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 async function apiRequest(endpoint, options = {}) {
+  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('pragati_access_token') : null;
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  if (token && !headers['Authorization']) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    ...options
+    ...options,
+    headers
   });
   if (!response.ok) {
     const errorText = await response.text();

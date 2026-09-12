@@ -11,6 +11,14 @@ import DelayAnalysis from './components/DelayAnalysis';
 import AlertBanner from './components/AlertBanner';
 import SIH2026Intelligence from './components/SIH2026Intelligence';
 import AITestWorkbench from './components/AITestWorkbench';
+import ProtectedRoute from './components/ProtectedRoute';
+import { useAuth } from './contexts/AuthContext';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import LandingPage from './pages/LandingPage';
+import AccountPage from './pages/AccountPage';
 import { getProjects, getProjectById, getProjectRisk, getAlerts, getDashboardSummary } from './services/api';
 import { getRiskPrediction } from './services/riskService';
 import './index.css';
@@ -60,17 +68,20 @@ function Dashboard({ projectsList, alertsList, summaryData, onRefresh }) {
               <h1 className="text-2xl font-bold text-gray-900 tracking-tight mt-0.5">Central Monitoring Dashboard</h1>
             </div>
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded">CY 2025–26 Q4 Audit Cohort</span>
+              <span className="font-mono text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded">Live Audit • Updated Today</span>
               <button 
                 onClick={onRefresh}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-gray-900 text-sm font-medium rounded shadow-sm hover:bg-gray-50 border border-gray-200"
               >
                 <span className="material-symbols-outlined text-base">refresh</span>
-                Sync API
+                Refresh Data
               </button>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-gray-900 text-sm font-medium rounded shadow-sm hover:bg-gray-50 border border-gray-200">
+              <button 
+                onClick={() => window.print()}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-gray-900 text-sm font-medium rounded shadow-sm hover:bg-gray-50 border border-gray-200"
+              >
                 <span className="material-symbols-outlined text-base">print</span>
-                Print Digest
+                Export Summary
               </button>
             </div>
           </div>
@@ -371,10 +382,13 @@ function ReportsPage() {
 
 function App() {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const [projectsList, setProjectsList] = useState([]);
   const [alertsList, setAlertsList] = useState([]);
   const [summaryData, setSummaryData] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const isAuthPage = ['/login', '/signup', '/forgot-password', '/reset-password'].includes(location.pathname);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -402,6 +416,17 @@ function App() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
+  if (isAuthPage) {
+    return (
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+      </Routes>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
@@ -416,42 +441,101 @@ function App() {
             <Route 
               path="/" 
               element={
-                <Dashboard 
-                  projectsList={projectsList} 
-                  alertsList={alertsList} 
-                  summaryData={summaryData} 
-                  onRefresh={loadData}
-                />
+                isAuthenticated ? (
+                  <Dashboard 
+                    projectsList={projectsList} 
+                    alertsList={alertsList} 
+                    summaryData={summaryData} 
+                    onRefresh={loadData}
+                  />
+                ) : (
+                  <LandingPage />
+                )
+              } 
+            />
+            <Route path="/landing" element={<LandingPage />} />
+            <Route 
+              path="/account" 
+              element={
+                <ProtectedRoute>
+                  <AccountPage />
+                </ProtectedRoute>
               } 
             />
             <Route 
               path="/projects" 
-              element={<ProjectsPage projectsList={projectsList} />} 
+              element={
+                <ProtectedRoute>
+                  <ProjectsPage projectsList={projectsList} />
+                </ProtectedRoute>
+              } 
             />
-            <Route path="/sectors" element={<SectorsPage />} />
+            <Route 
+              path="/sectors" 
+              element={
+                <ProtectedRoute>
+                  <SectorsPage />
+                </ProtectedRoute>
+              } 
+            />
             <Route 
               path="/risk" 
-              element={<RiskPage projectsList={projectsList} summaryData={summaryData} />} 
+              element={
+                <ProtectedRoute>
+                  <RiskPage projectsList={projectsList} summaryData={summaryData} />
+                </ProtectedRoute>
+              } 
             />
             <Route 
               path="/warnings" 
-              element={<WarningsPage alertsList={alertsList} summaryData={summaryData} />} 
+              element={
+                <ProtectedRoute>
+                  <WarningsPage alertsList={alertsList} summaryData={summaryData} />
+                </ProtectedRoute>
+              } 
             />
-            <Route path="/reports" element={<ReportsPage />} />
+            <Route 
+              path="/reports" 
+              element={
+                <ProtectedRoute>
+                  <ReportsPage />
+                </ProtectedRoute>
+              } 
+            />
             <Route
               path="/intelligence"
               element={
-                <div className="w-full px-4 lg:px-6 py-5 max-w-[1800px] mx-auto">
-                  <div className="mb-4">
-                    <h1 className="text-2xl font-bold text-gray-900">AI Intelligence Layer</h1>
-                    <p className="text-sm text-gray-500">SIH 2026 Problem 26013 — XGBoost + IsolationForest ML pipeline over 2,144 PRAGATI projects</p>
+                <ProtectedRoute>
+                  <div className="w-full px-4 lg:px-6 py-5 max-w-[1800px] mx-auto">
+                    <div className="mb-4">
+                      <h1 className="text-2xl font-bold text-gray-900">AI Intelligence Layer</h1>
+                      <p className="text-sm text-gray-500">SIH 2026 Problem 26013 — XGBoost + IsolationForest ML pipeline over 2,144 PRAGATI projects</p>
+                    </div>
+                    <SIH2026Intelligence />
                   </div>
-                  <SIH2026Intelligence />
-                </div>
+                </ProtectedRoute>
               }
             />
-            <Route path="/test" element={<AITestWorkbench />} />
-            <Route path="/ai-playground" element={<AITestWorkbench />} />
+            <Route 
+              path="/test" 
+              element={
+                <ProtectedRoute>
+                  <AITestWorkbench />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/ai-playground" 
+              element={
+                <ProtectedRoute>
+                  <AITestWorkbench />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Routes>
         )}
       </main>
