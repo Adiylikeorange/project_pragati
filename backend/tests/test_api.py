@@ -88,3 +88,45 @@ def test_dashboard_distributions():
     
     res_status = client.get("/api/dashboard/status-distribution")
     assert res_status.status_code == 200
+
+
+def test_sih2026_model_status():
+    res = client.get("/api/sih2026/status")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["xgboost_model"] is True
+    assert data["isolation_forest_model"] is True
+    assert data["priority_queue_rows"] >= 2000
+
+
+def test_sih2026_national_summary():
+    res = client.get("/api/sih2026/national-summary")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["projects"] == 2144
+
+
+def test_sih2026_live_ai_prediction():
+    payload = {
+        "original_cost_cr": 450.0,
+        "revised_cost_cr": 950.0,
+        "cumulative_expenditure_cr": 700.0,
+        "physical_progress_pct": 28.0,
+        "progress_velocity_3m": -1.5
+    }
+    res = client.post("/api/sih2026/predict", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["live_inference"] is True
+    assert "fused_risk_score" in data
+    assert "xgboost_prediction" in data
+    assert "future_deterioration_probability" in data["xgboost_prediction"]
+    assert "isolation_forest_prediction" in data
+    assert "anomaly_flag" in data["isolation_forest_prediction"]
+
+
+def test_testing_portal_html():
+    res = client.get("/test")
+    assert res.status_code == 200
+    assert "PRAGATI AI & Backend Testing Site" in res.text
+

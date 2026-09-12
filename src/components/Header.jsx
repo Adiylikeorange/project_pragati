@@ -11,6 +11,8 @@ const Header = () => {
     { name: 'Sectors', path: '/sectors' },
     { name: 'Risk Monitoring', path: '/risk' },
     { name: 'Early Warnings', path: '/warnings' },
+    { name: 'AI Intelligence', path: '/intelligence' },
+    { name: '⚡ AI Test Lab', path: '/test' },
     { name: 'Reports', path: '/reports' }
   ];
 

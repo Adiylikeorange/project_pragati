@@ -6,7 +6,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import projects, risks, alerts, dashboard
+from routers import projects, risks, alerts, dashboard, sih2026, test_portal
 
 app = FastAPI(
     title="Pragati Infrastructure Risk & Monitoring API",
@@ -37,6 +37,8 @@ app.include_router(projects.router)
 app.include_router(risks.router)
 app.include_router(alerts.router)
 app.include_router(dashboard.router)
+app.include_router(sih2026.router)
+app.include_router(test_portal.router)
 
 @app.get("/api/health")
 def health_check():
@@ -65,7 +67,19 @@ def root():
             "/api/risks/high-risk",
             "/api/risks/summary",
             "/api/alerts",
-            "/api/alerts/{alert_id}"
+            "/api/alerts/{alert_id}",
+            "/api/sih2026/status",
+            "/api/sih2026/dashboard",
+            "/api/sih2026/national-summary",
+            "/api/sih2026/risk-distribution",
+            "/api/sih2026/sector-breakdown",
+            "/api/sih2026/top-projects",
+            "/api/sih2026/early-warnings",
+            "/api/sih2026/projects",
+            "/api/sih2026/projects/{project_id}/risk",
+            "/api/sih2026/warning-summary",
+            "/api/sih2026/anomaly-summary",
+            "/api/sih2026/predictive-summary",
         ]
     }
 

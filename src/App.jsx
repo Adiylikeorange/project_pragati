@@ -9,6 +9,8 @@ import RiskMonitoring from './components/RiskMonitoring';
 import EarlyWarnings from './components/EarlyWarnings';
 import DelayAnalysis from './components/DelayAnalysis';
 import AlertBanner from './components/AlertBanner';
+import SIH2026Intelligence from './components/SIH2026Intelligence';
+import AITestWorkbench from './components/AITestWorkbench';
 import { getProjects, getProjectById, getProjectRisk, getAlerts, getDashboardSummary } from './services/api';
 import { getRiskPrediction } from './services/riskService';
 import './index.css';
@@ -169,6 +171,11 @@ function Dashboard({ projectsList, alertsList, summaryData, onRefresh }) {
 
         {/* Delay Analysis */}
         <DelayAnalysis delayCauses={summaryData.delayCauses} delayedProjects={summaryData.delayedProjects} />
+
+        {/* SIH2026 AI Intelligence Layer */}
+        <section className="bg-white rounded shadow-sm border border-purple-100 p-5">
+          <SIH2026Intelligence />
+        </section>
 
         {/* Operational Audit Footer */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500 py-3 border-t border-gray-200">
@@ -431,6 +438,20 @@ function App() {
               element={<WarningsPage alertsList={alertsList} summaryData={summaryData} />} 
             />
             <Route path="/reports" element={<ReportsPage />} />
+            <Route
+              path="/intelligence"
+              element={
+                <div className="w-full px-4 lg:px-6 py-5 max-w-[1800px] mx-auto">
+                  <div className="mb-4">
+                    <h1 className="text-2xl font-bold text-gray-900">AI Intelligence Layer</h1>
+                    <p className="text-sm text-gray-500">SIH 2026 Problem 26013 — XGBoost + IsolationForest ML pipeline over 2,144 PRAGATI projects</p>
+                  </div>
+                  <SIH2026Intelligence />
+                </div>
+              }
+            />
+            <Route path="/test" element={<AITestWorkbench />} />
+            <Route path="/ai-playground" element={<AITestWorkbench />} />
           </Routes>
         )}
       </main>

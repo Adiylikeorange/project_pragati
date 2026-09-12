@@ -1,7 +1,9 @@
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from pydantic import ConfigDict
+from typing import List, Dict, Any, Optional
 
 class PortfolioMetrics(BaseModel):
+    model_config = ConfigDict(extra='allow')
     totalProjects: int
     onTrack: int
     inProgress: int
@@ -11,12 +13,14 @@ class PortfolioMetrics(BaseModel):
     totalAllocation: str
 
 class RiskSummary(BaseModel):
+    model_config = ConfigDict(extra='allow')
     critical: int
     high: int
     medium: int
     low: int
 
 class DashboardSummaryResponse(BaseModel):
+    model_config = ConfigDict(extra='allow')
     total_projects: int
     high_risk_projects: int
     critical_projects: int
