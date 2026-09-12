@@ -19,6 +19,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import LandingPage from './pages/LandingPage';
 import AccountPage from './pages/AccountPage';
+import ReportsPage from './pages/ReportsPage';
 import { getProjects, getProjectById, getProjectRisk, getAlerts, getDashboardSummary } from './services/api';
 import { getRiskPrediction } from './services/riskService';
 import './index.css';
@@ -342,44 +343,6 @@ function SectorsPage() {
   );
 }
 
-function ReportsPage() {
-  return (
-    <div className="w-full px-4 lg:px-6 py-5 max-w-[1800px] mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Reports & Analytics</h1>
-      <p className="text-sm text-gray-500 mb-6">Generate and download infrastructure monitoring reports</p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { title: 'Monthly Progress Digest', desc: 'Comprehensive overview of all project milestones and status changes', icon: 'summarize', date: 'Last generated: Feb 2024' },
-          { title: 'Risk Assessment Report', desc: 'Detailed risk analysis with predictive scoring for all monitored projects', icon: 'assessment', date: 'Last generated: Feb 2024' },
-          { title: 'Delay Root-Cause Analysis', desc: 'Portfolio-wide impediment distribution and remediation tracking', icon: 'troubleshoot', date: 'Last generated: Jan 2024' },
-          { title: 'Financial Reconciliation', desc: 'CapEx disbursement, utilization certificates, and overrun analysis', icon: 'account_balance', date: 'Last generated: Feb 2024' },
-          { title: 'Inter-Ministerial Clearance Log', desc: 'Statutory and regulatory approval pipeline status', icon: 'gavel', date: 'Last generated: Feb 2024' },
-          { title: 'Cabinet Briefing Pack', desc: 'Executive summary prepared for the next PRAGATI review meeting', icon: 'co_present', date: 'Scheduled: Thursday 11:00 AM' },
-        ].map((report, i) => (
-          <div key={i} className="bg-white rounded shadow-sm border border-gray-200 p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-gray-700">{report.icon}</span>
-                </div>
-                <h3 className="font-bold text-gray-900">{report.title}</h3>
-              </div>
-              <p className="text-sm text-gray-500 mb-3">{report.desc}</p>
-              <p className="text-xs text-gray-400 font-mono">{report.date}</p>
-            </div>
-            <div className="flex items-center gap-2 mt-4">
-              <button className="flex-1 py-2 px-3 bg-gray-900 text-white rounded text-xs font-semibold hover:bg-gray-800">Generate</button>
-              <button className="py-2 px-3 bg-gray-100 text-gray-700 rounded text-xs font-semibold hover:bg-gray-200">
-                <span className="material-symbols-outlined text-base">download</span>
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function App() {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
@@ -507,7 +470,7 @@ function App() {
               path="/reports" 
               element={
                 <ProtectedRoute>
-                  <ReportsPage />
+                  <ReportsPage projectsList={projectsList} />
                 </ProtectedRoute>
               } 
             />
