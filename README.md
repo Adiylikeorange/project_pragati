@@ -4,6 +4,19 @@
 
 ---
 
+## 🌐 Live Public Deployment
+
+The application is deployed live with public HTTPS domains and accessible worldwide:
+
+| Service | Public URL | Status |
+| :--- | :--- | :--- |
+| **Production Web Portal (Vercel)** | **[https://project-pragati-six.vercel.app](https://project-pragati-six.vercel.app)** | `LIVE (HTTP 200)` |
+| **Production Backend API (Cloudflare)** | **[https://treat-cancellation-affiliate-involves.trycloudflare.com](https://treat-cancellation-affiliate-involves.trycloudflare.com)** | `LIVE (HTTP 200)` |
+| **Interactive API Docs (Swagger)** | **[https://treat-cancellation-affiliate-involves.trycloudflare.com/docs](https://treat-cancellation-affiliate-involves.trycloudflare.com/docs)** | `LIVE (HTTP 200)` |
+| **Standalone AI Test Portal** | **[https://treat-cancellation-affiliate-involves.trycloudflare.com/test](https://treat-cancellation-affiliate-involves.trycloudflare.com/test)** | `LIVE (HTTP 200)` |
+
+---
+
 ## 🏗️ Production Architecture
 
 ```text
