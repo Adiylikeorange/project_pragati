@@ -68,33 +68,30 @@ npm run dev
 
 ---
 
-## 🔌 AI Model Integration Point
+## 🤖 SIH 2026 AI / ML Intelligence Layer
 
-To plug in your real machine learning / AI prediction model:
-* **File Location**: [backend/services/risk_service.py](file:///Users/aditya/Documents/PARAKRITI/backend/services/risk_service.py)
-* **Function**: `get_risk_prediction(project_id: str)`
+The platform is integrated with the **SIH 2026 Problem 26013** machine learning pipeline trained over **2,144 national infrastructure projects** (Jan–Jul 2026 government monitoring data):
+* **XGBoost Classifier** (`backend/models/pragati_xgboost_model.joblib`): Predicts future physical progress deterioration probability.
+* **Isolation Forest** (`backend/models/pragati_isolation_forest.joblib`): Unsupervised anomaly detection flagging high-risk spending/progress divergence.
+* **Risk Fusion Engine**: Fuses 70% domain risk + 15% progress velocity + 10% anomaly signal + 5% XGBoost predictive score.
+* **Early Warning Feed**: 1,312 automated ML-generated early warnings across 6 categories.
 
-Replace the mock predictor with your model inference pipeline without changing the API contract or frontend:
+---
 
-```python
-def get_risk_prediction(project_id: str) -> Dict[str, Any]:
-    # 1. Fetch project features from DB using project_id
-    # 2. Run inference: prediction = model.predict(features)
-    return {
-        "project_id": str(project_id),
-        "risk_score": prediction.risk_score,
-        "risk_level": prediction.risk_level,
-        "confidence": prediction.confidence,
-        "risk_factors": prediction.risk_factors,
-        "primary_bottleneck": prediction.primary_bottleneck,
-        "delay_forecast_days": prediction.estimated_delay_days,
-        "recommendation": prediction.recommendation
-    }
-```
+## 🧪 Interactive Testing Sites & Sandboxes
+
+| Interface | URL | Purpose |
+| :--- | :--- | :--- |
+| **Interactive React Test Workbench** | `http://localhost:5173/test` | Live parameter simulation (*Cost, Progress, Velocity*), 1-click model inference, project risk inspector, and latency benchmark. |
+| **Standalone Backend Test Portal** | `http://localhost:8000/test` | Zero-dependency testing console served directly by FastAPI. |
+| **Interactive API Documentation (Swagger)** | `http://localhost:8000/docs` | Test all 22 REST endpoints directly in browser. |
+| **Full Local Setup Guide** | [`LOCAL_SETUP.md`](LOCAL_SETUP.md) | Detailed local installation & troubleshooting guide. |
+| **ML Technical Reference** | [`INTEGRATION.md`](INTEGRATION.md) | Architecture, feature contracts, and model specifications. |
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Frontend**: React 19, Vite 8, React Router v6, Tailwind CSS (CDN), Material Symbols Icons
+* **Frontend**: React 19, Vite 8, React Router v6, Tailwind CSS, Material Symbols Icons
 * **Backend**: Python 3.9, FastAPI, Uvicorn, Pydantic V2, Httpx, Pytest
+* **Machine Learning**: Scikit-Learn, XGBoost, Pandas, NumPy, Joblib
