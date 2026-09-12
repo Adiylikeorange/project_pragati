@@ -389,24 +389,33 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   const isAuthPage = ['/login', '/signup', '/forgot-password', '/reset-password'].includes(location.pathname);
+  const isLanding = !isAuthenticated && (location.pathname === '/' || location.pathname === '/landing');
 
   const loadData = useCallback(async () => {
-    setLoading(true);
+    // Only show full loading spinner for authenticated dashboard
+    if (isAuthenticated) {
+      setLoading(true);
+    }
     try {
-      const [projData, alertData, summary] = await Promise.all([
+      const timeoutPromise = new Promise(resolve => setTimeout(resolve, 3000));
+      const fetchPromise = Promise.all([
         getProjects(),
         getAlerts(),
         getDashboardSummary()
       ]);
-      setProjectsList(projData || []);
-      setAlertsList(alertData || []);
-      setSummaryData(summary || {});
+      const res = await Promise.race([fetchPromise, timeoutPromise]);
+      if (res && Array.isArray(res)) {
+        const [projData, alertData, summary] = res;
+        setProjectsList(projData || []);
+        setAlertsList(alertData || []);
+        setSummaryData(summary || {});
+      }
     } catch (err) {
       console.error('Failed to load initial data from API:', err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     loadData();
@@ -431,10 +440,10 @@ function App() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
       <main className="flex-1">
-        {loading ? (
+        {loading && !isLanding ? (
           <div className="flex items-center justify-center py-20 text-gray-500 gap-2">
             <span className="material-symbols-outlined animate-spin text-2xl text-blue-600">sync</span>
-            <span className="text-sm font-medium">Connecting to PRAGATI FastAPI backend...</span>
+            <span className="text-sm font-medium">Connecting to PRAGATI Command Center...</span>
           </div>
         ) : (
           <Routes>

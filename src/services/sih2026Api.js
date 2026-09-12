@@ -3,8 +3,7 @@
 // Connects React frontend with SIH2026 ML intelligence layer
 // ============================================================
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '../config/api';
 
 async function apiRequest(endpoint, options = {}) {
   const token = typeof localStorage !== 'undefined' ? localStorage.getItem('pragati_access_token') : null;
