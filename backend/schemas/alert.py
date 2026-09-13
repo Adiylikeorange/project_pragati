@@ -22,12 +22,19 @@ class EarlyWarningResponse(BaseModel):
     id: str
     project_id: str
     project_name: str
+    projectId: Optional[str] = None
+    projectName: Optional[str] = None
     sector: Optional[str] = "Infrastructure"
     state: Optional[str] = "National"
     severity: str
+    riskScore: Optional[int] = 85
+    delayProbability: Optional[int] = 75
     title: Optional[str] = None
     message: Optional[str] = None
     description: Optional[str] = None
     mandatedAction: Optional[str] = None
     created_at: str
     is_read: bool = False
+
+    class Config:
+        extra = "allow"

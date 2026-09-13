@@ -1,91 +1,34 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { markAlertAsRead } from '../services/api';
-
-const DEFAULT_WARNINGS = [
-  {
-    id: 'EW-001',
-    severity: 'Critical',
-    riskScore: 94,
-    delayProbability: 88,
-    projectName: 'Mumbai Coastal Infrastructure (South Section)',
-    sector: 'Urban Development',
-    state: 'Maharashtra',
-    description: 'Imminent stall due to contractor financial insolvency and equipment de-mobilization. Expected delay: 6+ months.',
-    mandatedAction: 'Invoke emergency fund substitution protocol & appoint interim concessionaire.',
-    status: 'Pending',
-    detectedDate: 'Today, 08:30 AM',
-    escalatedTo: null,
-    notes: ''
-  },
-  {
-    id: 'EW-002',
-    severity: 'Critical',
-    riskScore: 91,
-    delayProbability: 82,
-    projectName: 'Eastern Dedicated Freight Corridor (Segment 4B)',
-    sector: 'Railways',
-    state: 'Uttar Pradesh',
-    description: 'Repeated local protests blocking Right-of-Way (ROW) access over 14 km stretch.',
-    mandatedAction: 'Mandate central security deployment & state coordination taskforce.',
-    status: 'Pending',
-    detectedDate: 'Yesterday, 04:15 PM',
-    escalatedTo: null,
-    notes: ''
-  },
-  {
-    id: 'EW-003',
-    severity: 'High',
-    riskScore: 86,
-    delayProbability: 75,
-    projectName: 'Jewar International Airport (Noida Ph-1)',
-    sector: 'Airports',
-    state: 'Uttar Pradesh',
-    description: 'Pending DGCA statutory safety clearance for runway 2 extending beyond designated buffer window.',
-    mandatedAction: 'Escalate to Secretary, Civil Aviation for expedited joint committee review.',
-    status: 'Pending',
-    detectedDate: '2 days ago',
-    escalatedTo: null,
-    notes: ''
-  },
-  {
-    id: 'EW-004',
-    severity: 'High',
-    riskScore: 81,
-    delayProbability: 69,
-    projectName: 'Zojila Tunnel Strategic Highway',
-    sector: 'Roads & Highways',
-    state: 'Ladakh / J&K',
-    description: 'Severe winter geotechnical slippage along portal 2; rock-bolting progress slowed by 45%.',
-    mandatedAction: 'Deploy specialized BRO high-altitude boring machinery.',
-    status: 'Pending',
-    detectedDate: '3 days ago',
-    escalatedTo: null,
-    notes: ''
-  },
-  {
-    id: 'EW-005',
-    severity: 'Medium',
-    riskScore: 74,
-    delayProbability: 58,
-    projectName: 'Kaza Solar Ultra-Mega Power Park',
-    sector: 'Power & Energy',
-    state: 'Himachal Pradesh',
-    description: 'Grid connectivity transmission line clearance held at state environmental department.',
-    mandatedAction: 'Dispatch state liaison officer for green corridor clearance signoff.',
-    status: 'Pending',
-    detectedDate: '4 days ago',
-    escalatedTo: null,
-    notes: ''
-  }
-];
+import { earlyWarnings as DEFAULT_WARNINGS } from '../data/alerts';
 
 export default function EarlyWarnings({ warnings = [] }) {
   // Normalize incoming warnings or use defaults
   const [alerts, setAlerts] = useState(() => {
+    const src = (warnings && warnings.length > 0) ? warnings : DEFAULT_WARNINGS;
+    return src.map((w, idx) => ({
+      id: w.id || `EW-00${idx + 1}`,
+      severity: w.severity ? (w.severity.charAt(0).toUpperCase() + w.severity.slice(1).toLowerCase()) : 'High',
+      riskScore: w.riskScore || w.score || 85,
+      delayProbability: w.delayProbability || w.prob || 75,
+      projectName: w.projectName || w.project_name || w.project || 'National Infrastructure Project',
+      sector: w.sector || 'Infrastructure',
+      state: w.state || 'National',
+      description: w.description || w.desc || w.message || 'Anomaly detected requiring secretarial attention.',
+      mandatedAction: w.mandatedAction || w.action || 'Initiate review with line ministry.',
+      status: w.status || (w.protocol_initiated || w.is_read ? 'Protocol Initiated' : 'Pending'),
+      detectedDate: w.detectedDate || 'Recent',
+      escalatedTo: w.escalatedTo || null,
+      notes: w.notes || ''
+    }));
+  });
+
+  // Keep alerts in sync when API loads live data
+  useEffect(() => {
     if (warnings && warnings.length > 0) {
-      return warnings.map((w, idx) => ({
+      setAlerts(warnings.map((w, idx) => ({
         id: w.id || `EW-00${idx + 1}`,
-        severity: w.severity || (w.risk_level ? w.risk_level.charAt(0).toUpperCase() + w.risk_level.slice(1) : 'High'),
+        severity: w.severity ? (w.severity.charAt(0).toUpperCase() + w.severity.slice(1).toLowerCase()) : 'High',
         riskScore: w.riskScore || w.score || 85,
         delayProbability: w.delayProbability || w.prob || 75,
         projectName: w.projectName || w.project_name || w.project || 'National Infrastructure Project',
@@ -97,10 +40,9 @@ export default function EarlyWarnings({ warnings = [] }) {
         detectedDate: w.detectedDate || 'Recent',
         escalatedTo: w.escalatedTo || null,
         notes: w.notes || ''
-      }));
+      })));
     }
-    return DEFAULT_WARNINGS;
-  });
+  }, [warnings]);
 
   // Filter and Search States
   const [searchQuery, setSearchQuery] = useState('');
