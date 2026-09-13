@@ -22,8 +22,6 @@ const Header = () => {
 
   const navLinks = [
     { name: 'Dashboard', path: '/' },
-    { name: 'Projects', path: '/projects' },
-    { name: 'Sectors', path: '/sectors' },
     { name: 'Risk Monitoring', path: '/risk' },
     { name: 'Early Warnings', path: '/warnings' },
     { name: 'AI Intelligence', path: '/intelligence' },
