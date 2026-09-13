@@ -12,6 +12,122 @@ logger = logging.getLogger(__name__)
 
 _alerts_cache: Optional[List[Dict[str, Any]]] = None
 
+def _generate_tailored_action(r: Any) -> str:
+    import hashlib
+    pname = str(r.get("project_name") or "Project").strip()
+    clean_pname = pname[:40].strip()
+    sector = str(r.get("sector") or "").strip().lower()
+    ministry = str(r.get("line_ministry") or "concerned ministry").strip()
+    
+    try:
+        esc = float(r.get("cost_escalation_pct") or 0)
+    except (ValueError, TypeError):
+        esc = 0.0
+    try:
+        gap = float(r.get("expenditure_progress_gap_pct") or 0)
+    except (ValueError, TypeError):
+        gap = 0.0
+    try:
+        vel = float(r.get("progress_velocity_3m") or 0)
+    except (ValueError, TypeError):
+        vel = 0.0
+        
+    traj = str(r.get("trajectory_status") or "").strip().upper()
+    pid = str(r.get("project_id") or "")
+    h = int(hashlib.md5(pid.encode()).hexdigest(), 16)
+    
+    # Check severe cost inflation
+    if esc > 250:
+        variants = [
+            f"Mandate urgent Revised Cost Estimate (RCE-II) appraisal before Public Investment Board (PIB). Place immediate ceiling on scope expansion and order independent financial audit on +{esc:.1f}% cost escalation for {clean_pname}.",
+            f"Direct Secretary, {ministry}, to freeze non-critical variation orders on {clean_pname}. Convene expenditure finance committee (EFC) review to address +{esc:.1f}% budget escalation.",
+            f"Require joint CVC and CAG technical-financial appraisal on +{esc:.1f}% cost overrun for {clean_pname}. Restructure uncommitted EPC tender packages under {ministry}."
+        ]
+        return variants[h % len(variants)]
+        
+    # Check severe expenditure vs progress divergence
+    if gap > 80:
+        variants = [
+            f"Enforce forensic financial reconciliation: cumulative expenditure exceeds physical progress by +{gap:.1f}%. Freeze uncertified milestone advances on {clean_pname} pending joint secretarial audit with {ministry}.",
+            f"Halt discretionary fund disbursements on {clean_pname}. Mandate physical milestone verification by third-party inspection agency to reconcile +{gap:.1f}% outlay overhang under {ministry}."
+        ]
+        return variants[h % len(variants)]
+        
+    # Check combined moderate escalation and outlay gap
+    if esc > 60 and gap > 25:
+        return f"Direct {ministry} to issue formal cure notice under contractual terms for {clean_pname}. Freeze additional budget variations (+{esc:.1f}%) and reconcile +{gap:.1f}% expenditure lead via PMG intervention."
+
+    # Sector specific tailored actions
+    if "railway" in sector:
+        if vel < -5:
+            variants = [
+                f"Convene Railway Board & Zonal General Manager emergency review for {clean_pname}. Issue 14-day cure notice to EPC concessionaire on declining velocity ({vel:.1f}%/mo) and mobilize reserve engineering battalions.",
+                f"Direct Principal Chief Engineer and CAO (Construction) to conduct on-site review for {clean_pname}. Reallocate critical track doubling and formation packages to standby contractors."
+            ]
+            return variants[h % len(variants)]
+        elif traj == "DETERIORATING":
+            variants = [
+                f"Direct Zonal Chief Administrative Officer (Construction) and District Revenue Officers to clear RoW disputes along {clean_pname}. Enforce weekly milestone certification for track formation and OHE substations.",
+                f"Mandate joint coordination between {ministry} and State Chief Secretary to expedite land handover for {clean_pname}. Institute bi-weekly CRS (Commissioner of Railway Safety) pre-inspection milestones.",
+                f"Order DRM (Divisional Railway Manager) corridor taskforce to clear utility infringements on {clean_pname} and enforce strict critical-path scheduling on bridge and signaling works."
+            ]
+            return variants[h % len(variants)]
+        elif esc > 50:
+            return f"Mandate Financial Commissioner (Railways) audit of yard remodeling and alignment costs (+{esc:.1f}%) on {clean_pname}. Cap discretionary scope changes under {ministry}."
+        else:
+            return f"Establish dedicated Railway-State joint taskforce to expedite pending forest clearance and land parcels for {clean_pname}, reporting progress directly to {ministry}."
+            
+    elif "water" in sector or "irrigation" in sector:
+        if esc > 80:
+            variants = [
+                f"Convene Central Water Commission (CWC) and State Water Resources Department to cap dam-spillway scope inflation (+{esc:.1f}%) on {clean_pname}. Finalize pending Resettlement & Rehabilitation (R&R) packages.",
+                f"Mandate CWC technical review on {clean_pname} headworks and canal network. Freeze further budget variation (+{esc:.1f}%) until state equity reconciliation is concluded under {ministry}."
+            ]
+            return variants[h % len(variants)]
+        elif traj == "STAGNATING":
+            return f"Direct State Principal Secretary (Irrigation) and District Magistrate to expedite Stage-II forest compliance for {clean_pname}. Enforce contractor remobilization under Clause 14."
+        else:
+            return f"Intervene via Central Water Commission to reconcile inter-state water sharing clearances and fast-track land handover for {clean_pname} distribution canals."
+            
+    elif "road" in sector or "highway" in sector or "transport" in sector:
+        if traj == "STAGNATING" or vel <= 0:
+            variants = [
+                f"Direct NHAI / MoRTH Regional Officer to coordinate with state administration for vacant 80% ROW possession on {clean_pname} and issue immediate tree-felling NOCs.",
+                f"Convene district land acquisition arbitrations with District Collector for {clean_pname}. Require EPC concessionaire to deploy additional paving trains within 21 days."
+            ]
+            return variants[h % len(variants)]
+        elif gap > 20:
+            return f"Deploy drone-based corridor audit on {clean_pname} to reconcile mobilization advances (+{gap:.1f}% gap) against certified pavement and structural completion."
+        else:
+            return f"Invoke contractual dispute escalation clause on {clean_pname}; mandate weekly target schedules for bypass and interchange flyover packages under {ministry}."
+            
+    elif "power" in sector or "electricity" in sector or "energy" in sector:
+        if esc > 70:
+            return f"Require Central Electricity Authority (CEA) technical evaluation on heavy electromechanical equipment procurement for {clean_pname} (+{esc:.1f}% escalation) under {ministry}."
+        else:
+            return f"Direct {ministry} to resolve transmission evacuation corridor bottlenecks and expedite substation interconnectivity synchronization for {clean_pname}."
+            
+    elif "health" in sector:
+        return f"Direct CPWD/NBCC and State Medical Education Directorate to fast-track super-specialty block handover for {clean_pname} and synchronize medical equipment procurement."
+        
+    elif "mine" in sector or "metal" in sector or "coal" in sector:
+        return f"Convene inter-ministerial panel between {ministry} and MoEF&CC to clear Stage-II forest land handover and environmental compliance monitoring for {clean_pname}."
+        
+    elif "petroleum" in sector or "oil" in sector:
+        return f"Expedite pipeline Right of User (RoU) gazette notifications with state revenue authorities and clear hydrocarbon safety directorate clearances for {clean_pname} under {ministry}."
+        
+    elif "urban" in sector or "smart" in sector or "metro" in sector:
+        return f"Direct State Urban Development Directorate and Municipal Commissioners to clear utility shifting and station footprint land acquisition for {clean_pname} under {ministry}."
+        
+    # General fallback tailored with project name, ministry and specific metrics
+    if traj == "DETERIORATING":
+        return f"Convene urgent review chaired by Secretary, {ministry}, to address severe trajectory decline ({vel:.1f}%/mo) on {clean_pname} and restructure lagging EPC packages."
+    elif traj == "STAGNATING":
+        return f"Direct {ministry} Project Monitoring Unit to conduct on-site appraisal for {clean_pname}, clear statutory encumbrances, and establish hard completion milestones."
+    else:
+        return f"Prioritize high-level review with {ministry} for {clean_pname} to resolve inter-agency bottlenecks and enforce strict quarterly milestone compliance."
+
+
 def _build_dataset_alerts(limit: int = 50) -> List[Dict[str, Any]]:
     backend_root = Path(__file__).resolve().parents[1]
     csv_path = backend_root / "sih2026_outputs" / "pragati_priority_queue.csv"
@@ -74,14 +190,7 @@ def _build_dataset_alerts(limit: int = 50) -> List[Dict[str, Any]]:
                     parts.append("Multi-dimensional schedule and expenditure slippage detected")
             reason = "; ".join(parts) + "."
             
-            action = str(r.get("recommended_action") or "").strip()
-            ministry = str(r.get("line_ministry") or "").strip()
-            if not action or action == "nan":
-                action = "Prioritise milestone-level review and identify implementation bottlenecks."
-            if ministry and ministry != "nan":
-                solution = f"{action} Convene resolution summit with {ministry}."
-            else:
-                solution = f"{action} Expedite inter-ministerial taskforce intervention."
+            solution = _generate_tailored_action(r)
                 
             alert = {
                 "id": f"EW-{pid}",
