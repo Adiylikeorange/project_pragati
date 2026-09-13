@@ -5,9 +5,20 @@ import { useAuth } from '../contexts/AuthContext';
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, loginDemo } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
+  const handleDemoAccess = async () => {
+    try {
+      await loginDemo();
+      setMobileMenuOpen(false);
+      navigate('/');
+    } catch (err) {
+      console.error(err);
+      navigate('/');
+    }
+  };
 
   const navLinks = [
     { name: 'Dashboard', path: '/' },
@@ -247,6 +258,25 @@ const Header = () => {
           </div>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button
+              onClick={handleDemoAccess}
+              style={{
+                fontSize: '0.8rem',
+                backgroundColor: '#F59E0B',
+                color: '#0F172A',
+                padding: '0.35rem 0.75rem',
+                borderRadius: '4px',
+                border: 'none',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>bolt</span>
+              Live Demo
+            </button>
             <Link
               to="/login"
               style={{
@@ -361,6 +391,26 @@ const Header = () => {
             </div>
           ) : (
             <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <button
+                onClick={handleDemoAccess}
+                style={{
+                  textAlign: 'center',
+                  padding: '0.75rem',
+                  borderRadius: '6px',
+                  backgroundColor: '#F59E0B',
+                  color: '#0F172A',
+                  border: 'none',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                <span className="material-symbols-outlined text-lg">bolt</span>
+                <span>Launch 1-Click Live Demo</span>
+              </button>
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}

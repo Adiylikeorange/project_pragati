@@ -3,16 +3,35 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, loginDemo } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const from = location.state?.from?.pathname || '/';
+
+  const handleInstantDemo = async () => {
+    setError('');
+    setDemoLoading(true);
+    try {
+      await loginDemo();
+      navigate(from, { replace: true });
+    } catch (err) {
+      setError(err.message || 'Demo login failed.');
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
+  const handleFillDemo = () => {
+    setEmail('demo@pragati.gov.in');
+    setPassword('Pragati@2026');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,6 +98,63 @@ export default function LoginPage() {
               Create one
             </Link>
           </p>
+
+          {/* Instant 1-Click Demo Login */}
+          <div style={{
+            background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)',
+            border: '1px solid #BFDBFE',
+            borderRadius: 'var(--radius-md)',
+            padding: '1rem',
+            marginBottom: '1.25rem',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#1E40AF', marginBottom: '0.25rem' }}>
+              ⚡ Immediate Public Exploration Access
+            </div>
+            <p style={{ fontSize: '0.75rem', color: '#3B82F6', marginBottom: '0.75rem' }}>
+              Want to review the 2,144 projects, risk models, and reports instantly?
+            </p>
+            <button
+              type="button"
+              onClick={handleInstantDemo}
+              disabled={demoLoading || loading}
+              style={{
+                width: '100%',
+                padding: '0.625rem 1rem',
+                background: 'linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.875rem',
+                fontWeight: 700,
+                cursor: (demoLoading || loading) ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 2px 4px rgba(37, 99, 235, 0.25)',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: '#FCD34D' }}>bolt</span>
+              <span>{demoLoading ? 'Authorizing Demo Officer…' : '1-Click Instant Demo Login'}</span>
+            </button>
+          </div>
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            margin: '1.25rem 0',
+            color: 'var(--color-text-muted)',
+            fontSize: '0.75rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            fontWeight: 600,
+          }}>
+            <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
+            <span>Or Sign In With Account</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
+          </div>
 
           {error && (
             <div style={{
@@ -171,6 +247,39 @@ export default function LoginPage() {
                   </span>
                 </button>
               </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: '#F8FAFC',
+              border: '1px dashed #CBD5E1',
+              borderRadius: 'var(--radius-sm)',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.75rem',
+              color: '#475569',
+            }}>
+              <div>
+                <span style={{ fontWeight: 600, color: '#0F172A' }}>Demo Credentials:</span>{' '}
+                <code>demo@pragati.gov.in</code>
+              </div>
+              <button
+                type="button"
+                onClick={handleFillDemo}
+                style={{
+                  background: '#E2E8F0',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '3px 8px',
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  color: '#1E293B',
+                  cursor: 'pointer',
+                }}
+              >
+                Auto-fill
+              </button>
             </div>
 
             <button

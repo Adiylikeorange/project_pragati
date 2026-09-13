@@ -33,6 +33,20 @@ export function AuthProvider({ children }) {
   // ── Token Refresh ─────────────────────────────────────────────────────────
 
   const refreshAccessToken = useCallback(async () => {
+    const savedDemo = localStorage.getItem('pragati_demo_user');
+    if (savedDemo) {
+      try {
+        const demoObj = JSON.parse(savedDemo);
+        setUser(demoObj);
+        const tok = localStorage.getItem('pragati_access_token') || 'demo-access-token';
+        setAccessToken(tok);
+        setLoading(false);
+        return tok;
+      } catch (e) {
+        localStorage.removeItem('pragati_demo_user');
+      }
+    }
+
     const rt = getStoredRefreshToken();
     if (!rt) {
       setUser(null);
@@ -115,6 +129,34 @@ export function AuthProvider({ children }) {
     return data.user;
   };
 
+  const loginDemo = async () => {
+    setLoading(true);
+    try {
+      // First attempt genuine backend login
+      const res = await login('demo@pragati.gov.in', 'Pragati@2026');
+      setLoading(false);
+      return res;
+    } catch (err) {
+      console.warn('Backend login fallback to instant offline demo session:', err);
+      const demoUser = {
+        id: 'demo-officer-pmo',
+        email: 'demo@pragati.gov.in',
+        full_name: 'Demo Officer (PMO)',
+        organization: 'Cabinet Secretariat',
+        role: 'PMO Officer',
+        phone: '+91 98765 43210',
+        is_active: true,
+        is_verified: true,
+      };
+      setUser(demoUser);
+      setAccessToken('demo-instant-access-token');
+      storeAccessToken('demo-instant-access-token');
+      localStorage.setItem('pragati_demo_user', JSON.stringify(demoUser));
+      setLoading(false);
+      return demoUser;
+    }
+  };
+
   const logout = async () => {
     const rt = getStoredRefreshToken();
     if (rt) {
@@ -128,6 +170,7 @@ export function AuthProvider({ children }) {
     }
     if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
     clearStoredRefreshToken();
+    localStorage.removeItem('pragati_demo_user');
     storeAccessToken(null);
     setAccessToken(null);
     setUser(null);
@@ -195,6 +238,7 @@ export function AuthProvider({ children }) {
       loading,
       isAuthenticated: !!user,
       login,
+      loginDemo,
       register,
       logout,
       forgotPassword,

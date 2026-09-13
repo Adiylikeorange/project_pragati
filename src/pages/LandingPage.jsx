@@ -1,7 +1,25 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LandingPage() {
+  const { loginDemo } = useAuth();
+  const navigate = useNavigate();
+  const [demoLoading, setDemoLoading] = useState(false);
+
+  const handleLaunchDemo = async (targetPath = '/') => {
+    setDemoLoading(true);
+    try {
+      await loginDemo();
+      navigate(targetPath);
+    } catch (err) {
+      console.error('Demo launch error:', err);
+      navigate(targetPath);
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between text-slate-900 font-sans">
       {/* Top Banner / Nav */}
@@ -14,48 +32,103 @@ export default function LandingPage() {
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => handleLaunchDemo('/')}
+            disabled={demoLoading}
+            className="text-xs md:text-sm font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 px-3.5 py-1.5 rounded shadow flex items-center gap-1.5 transition-all cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-sm">bolt</span>
+            <span>{demoLoading ? 'Launching…' : '1-Click Live Demo'}</span>
+          </button>
           <Link
             to="/login"
-            className="text-sm font-medium text-slate-200 hover:text-white px-3 py-1.5 transition-colors"
+            className="text-sm font-medium text-slate-200 hover:text-white px-2 py-1.5 transition-colors hidden sm:inline"
           >
             Sign In
           </Link>
           <Link
             to="/signup"
-            className="text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded shadow-sm transition-all"
+            className="text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded shadow-sm transition-all"
           >
-            Get Started
+            Register
           </Link>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-16 md:py-24 px-6 md:px-12 max-w-6xl mx-auto flex flex-col items-center text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold mb-6">
-          <span className="inline-block w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-          Next-Gen AI Risk & Milestone Monitoring Pipeline Active
+      <section className="py-12 md:py-20 px-6 md:px-12 max-w-6xl mx-auto flex flex-col items-center text-center">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold mb-6 border border-blue-200 shadow-sm">
+          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+          <span>FastAPI 2.0 Backend & SIH2026 AI Risk Pipeline Online</span>
         </div>
+        
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
           Accelerating India's Mega Infrastructure with <span className="text-blue-700">Predictive Intelligence</span>
         </h1>
-        <p className="text-lg md:text-xl text-slate-600 max-w-3xl mb-10 leading-relaxed">
-          PRAGATI delivers unified cross-ministry visibility, real-time risk classification, and machine-learning early warning signals across thousands of critical infrastructure projects.
+        
+        <p className="text-lg md:text-xl text-slate-600 max-w-3xl mb-8 leading-relaxed">
+          PRAGATI delivers unified cross-ministry visibility, real-time risk classification, and machine-learning early warning signals across 2,140+ national infrastructure projects.
         </p>
-        <div className="flex flex-wrap gap-4 justify-center">
-          <Link
-            to="/signup"
-            className="px-6 py-3.5 bg-[#0A2540] hover:bg-[#12365a] text-white font-semibold rounded-lg shadow-md transition-all flex items-center gap-2"
+
+        {/* Primary CTA Buttons */}
+        <div className="flex flex-wrap gap-4 justify-center items-center mb-6">
+          <button
+            onClick={() => handleLaunchDemo('/')}
+            disabled={demoLoading}
+            className="px-7 py-3.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2.5 text-base cursor-pointer"
           >
-            <span>Access Portal</span>
-            <span className="material-symbols-outlined text-lg">arrow_forward</span>
-          </Link>
+            <span className="material-symbols-outlined text-xl">rocket_launch</span>
+            <span>{demoLoading ? 'Accessing Command Center…' : 'Launch Live Command Center (Instant Access)'}</span>
+          </button>
+          
           <Link
             to="/login"
-            className="px-6 py-3.5 bg-white hover:bg-slate-100 text-slate-800 font-semibold rounded-lg border border-slate-300 shadow-sm transition-all"
+            className="px-6 py-3.5 bg-white hover:bg-slate-100 text-slate-800 font-semibold rounded-lg border border-slate-300 shadow-sm transition-all flex items-center gap-2"
           >
-            Authorized Login
+            <span className="material-symbols-outlined text-lg">login</span>
+            <span>Official Login</span>
           </Link>
+        </div>
+
+        {/* Live Demo Direct Shortcuts */}
+        <div className="w-full max-w-4xl bg-white border border-blue-100 rounded-xl p-4 shadow-sm mt-2">
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+            ⚡ Quick Direct Access to Key Live Modules (No Sign Up Needed)
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <button
+              onClick={() => handleLaunchDemo('/')}
+              className="flex items-center justify-center gap-2 p-2.5 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/60 transition-all text-xs font-semibold text-slate-800 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-blue-600 text-base">dashboard</span>
+              <span>Central Dashboard</span>
+            </button>
+            <button
+              onClick={() => handleLaunchDemo('/warnings')}
+              className="flex items-center justify-center gap-2 p-2.5 rounded-lg border border-slate-200 hover:border-amber-500 hover:bg-amber-50/60 transition-all text-xs font-semibold text-slate-800 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-amber-600 text-base">crisis_alert</span>
+              <span>Early Warnings</span>
+            </button>
+            <button
+              onClick={() => handleLaunchDemo('/reports')}
+              className="flex items-center justify-center gap-2 p-2.5 rounded-lg border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/60 transition-all text-xs font-semibold text-slate-800 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-emerald-600 text-base">summarize</span>
+              <span>Report Studio</span>
+            </button>
+            <button
+              onClick={() => handleLaunchDemo('/test')}
+              className="flex items-center justify-center gap-2 p-2.5 rounded-lg border border-slate-200 hover:border-purple-500 hover:bg-purple-50/60 transition-all text-xs font-semibold text-slate-800 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-purple-600 text-base">science</span>
+              <span>AI Test Lab</span>
+            </button>
+          </div>
+          <div className="text-[11px] text-slate-400 mt-2 text-center">
+            Observer demo credentials: <code className="text-slate-600 font-mono">demo@pragati.gov.in</code> / <code className="text-slate-600 font-mono">Pragati@2026</code>
+          </div>
         </div>
       </section>
 
