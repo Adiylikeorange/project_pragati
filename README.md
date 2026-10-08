@@ -4,7 +4,7 @@
 
 ---
 
-## 🌐 Live Public Deployment
+##  Live Public Deployment
 
 The application is deployed live with public HTTPS domains and accessible worldwide:
 
